@@ -2,9 +2,6 @@ import { Platform } from 'react-native';
 
 const BASE_URL = 'https://odoosahab-al-zain-realestate-stage-18771559.dev.odoo.com';
 
- 
-
-
 async function fetchWithError(endpoint: string) {
   try {
     const fullUrl = `${BASE_URL}${endpoint}`;
@@ -54,11 +51,18 @@ export async function fetchProjectProperties(projectId: number, params?: {
   maxPrice?: number;
   propertyFor?: string;
 }) {
-  const url = new URL(`/api/project/${projectId}/properties`, window.location.origin);
+  let endpoint = `/api/project/${projectId}/properties`;
+  
   if (params) {
-    Object.entries(params).forEach(([key, value]) => {
-      if (value) url.searchParams.append(key, String(value));
-    });
+    const queryParams = Object.entries(params)
+      .filter(([_, value]) => value !== undefined)
+      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`)
+      .join('&');
+      
+    if (queryParams) {
+      endpoint += `?${queryParams}`;
+    }
   }
-  return fetchWithError(url.pathname + url.search);
+  
+  return fetchWithError(endpoint);
 }

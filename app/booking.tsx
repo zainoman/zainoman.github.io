@@ -33,6 +33,15 @@ export default function BookingScreen() {
     price: string;
   }>();
 
+  // Add check for undefined params
+  if (!params.propertyId || !params.projectId || !params.propertyName || !params.price) {
+    return (
+      <ThemedView style={styles.centered}>
+        <ThemedText>Invalid property details</ThemedText>
+      </ThemedView>
+    );
+  }
+
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -229,5 +238,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     letterSpacing: 0.5,
+  },
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
