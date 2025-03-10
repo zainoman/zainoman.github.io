@@ -9,12 +9,12 @@ import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  const colorScheme = useColorScheme() ?? 'light';
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: Colors[colorScheme].tint,
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
@@ -27,24 +27,23 @@ export default function TabLayout() {
         }),
       }}>
       <Tabs.Screen
-        name="index"
+        name="index"  // This is now an alias that redirects to projects
+        options={{
+          href: null, // Hide this tab from the tab bar
+        }}
+      />
+      <Tabs.Screen
+        name="projects"
         options={{
           title: 'Home',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="project/[id]"
         options={{
-          title: 'Explore',
+          title: 'Details',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="projects"
-        options={{
-          title: 'Projects',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="building.2.fill" color={color} />,
         }}
       />
     </Tabs>
