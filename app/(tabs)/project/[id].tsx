@@ -1,7 +1,8 @@
-import { useLocalSearchParams } from 'expo-router';
+import { Stack, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { Link } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
@@ -11,6 +12,7 @@ import type { ProjectDetails, ProjectProperties } from '@/types/api';
 
 export default function ProjectDetailsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const insets = useSafeAreaInsets();
   const [project, setProject] = useState<ProjectDetails>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>();
@@ -62,99 +64,110 @@ export default function ProjectDetailsScreen() {
   }
 
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        project.image ? (
-          <ThemedView style={styles.imageContainer}>
-            <Image 
-              source={{ uri: `https://odoosahab-al-zain-realestate-stage-18771559.dev.odoo.com${(project.image)}` }}
-              style={styles.image}
-              resizeMode="cover"
-            />
-          </ThemedView>
-        ) : (
-          <ThemedView style={styles.imageContainer} />
-        )
-      }>
-      <ThemedView style={styles.contentContainer}>
-        <ThemedText type="title" style={styles.title}>{project.project_name}</ThemedText>
-        <ThemedText style={styles.description}>{project.description}</ThemedText>
-        
-        <ThemedView style={styles.statsContainer}>
-          {project.property_count !== undefined && (
-            <ThemedView style={styles.statBox}>
-              <ThemedText type="defaultSemiBold" style={styles.statNumber}>{project.property_count}</ThemedText>
-              <ThemedText style={styles.statLabel}>Total Units</ThemedText>
+    <ThemedView style={styles.container}>
+      <Stack.Screen 
+        options={{
+          headerShown: true,
+          headerTitle: project?.project_name || 'Project Details',
+          headerBackTitle: 'Back',
+          headerBackVisible: true,
+        }}
+      />
+      
+      <ParallaxScrollView
+        headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+        headerImage={
+          project.image ? (
+            <ThemedView style={styles.imageContainer}>
+              <Image 
+                source={{ uri: `https://odoosahab-al-zain-realestate-stage-18771559.dev.odoo.com${(project.image)}` }}
+                style={styles.image}
+                resizeMode="cover"
+              />
             </ThemedView>
-          )}
-          {project.available_unit_count !== undefined && (
-            <ThemedView style={styles.statBox}>
-              <ThemedText type="defaultSemiBold" style={styles.statNumber}>{project.available_unit_count}</ThemedText>
-              <ThemedText style={styles.statLabel}>Available</ThemedText>
-            </ThemedView>
-          )}
-          {project.sold_unit_count !== undefined && (
-            <ThemedView style={styles.statBox}>
-              <ThemedText type="defaultSemiBold" style={styles.statNumber}>{project.sold_unit_count}</ThemedText>
-              <ThemedText style={styles.statLabel}>Sold</ThemedText>
-            </ThemedView>
-          )}
-        </ThemedView>
-
-        <ThemedView style={styles.card}>
-          <ThemedText type="subtitle" style={styles.cardTitle}>Project Details</ThemedText>
-          <ThemedView style={styles.detailsGrid}>
-            <DetailItem label="Address" value={project.address} />
-            <DetailItem label="Type" value={project.type} />
-            <DetailItem label="Location" value={project.location} />
-            <DetailItem label="Area" value={project.building_area} />
-            <DetailItem label="Price" value={project.price?.toString()} />
-            <DetailItem label="Status" value={project.state} />
-            {project.start_date && (
-              <DetailItem label="Start Date" value={new Date(project.start_date).toLocaleDateString()} />
+          ) : (
+            <ThemedView style={styles.imageContainer} />
+          )
+        }>
+        <ThemedView style={[styles.contentContainer, { paddingTop: insets.top > 0 ? 0 : 10 }]}>
+          <ThemedText type="title" style={styles.title}>{project.project_name}</ThemedText>
+          <ThemedText style={styles.description}>{project.description}</ThemedText>
+          
+          <ThemedView style={styles.statsContainer}>
+            {project.property_count !== undefined && (
+              <ThemedView style={styles.statBox}>
+                <ThemedText type="defaultSemiBold" style={styles.statNumber}>{project.property_count}</ThemedText>
+                <ThemedText style={styles.statLabel}>Total Units</ThemedText>
+              </ThemedView>
             )}
-            {project.delivery_date && (
-              <DetailItem label="Delivery Date" value={new Date(project.delivery_date).toLocaleDateString()} />
+            {project.available_unit_count !== undefined && (
+              <ThemedView style={styles.statBox}>
+                <ThemedText type="defaultSemiBold" style={styles.statNumber}>{project.available_unit_count}</ThemedText>
+                <ThemedText style={styles.statLabel}>Available</ThemedText>
+              </ThemedView>
+            )}
+            {project.sold_unit_count !== undefined && (
+              <ThemedView style={styles.statBox}>
+                <ThemedText type="defaultSemiBold" style={styles.statNumber}>{project.sold_unit_count}</ThemedText>
+                <ThemedText style={styles.statLabel}>Sold</ThemedText>
+              </ThemedView>
             )}
           </ThemedView>
-        </ThemedView>
 
-        {properties && properties.properties.length > 0 && (
           <ThemedView style={styles.card}>
-            <ThemedText type="subtitle" style={styles.cardTitle}>Available Properties</ThemedText>
-            <ThemedView style={styles.propertiesGrid}>
-              {properties.properties.map(property => (
-                <Link 
-                  key={property.id} 
-                  href={{
-                    pathname: "/booking",
-                    params: { 
-                      propertyId: property.id,
-                      projectId: project.id,
-                      propertyName: property.name,
-                      price: property.unit_price
-                    }
-                  }}
-                  asChild
-                >
-                  <TouchableOpacity activeOpacity={0.7}>
-                    <ThemedView style={styles.propertyCard}>
-                      <ThemedText type="defaultSemiBold" style={styles.propertyName}>{property.name}</ThemedText>
-                      <ThemedText style={styles.propertyDescription} numberOfLines={2}>{property.description}</ThemedText>
-                      <ThemedView style={styles.propertyFooter}>
-                        <ThemedText style={styles.propertyPrice}>${property.unit_price.toLocaleString()}</ThemedText>
-                        <ThemedText style={styles.propertyType}>{property.property_for}</ThemedText>
-                      </ThemedView>
-                    </ThemedView>
-                  </TouchableOpacity>
-                </Link>
-              ))}
+            <ThemedText type="subtitle" style={styles.cardTitle}>Project Details</ThemedText>
+            <ThemedView style={styles.detailsGrid}>
+              <DetailItem label="Address" value={project.address} />
+              <DetailItem label="Type" value={project.type} />
+              <DetailItem label="Location" value={project.location} />
+              <DetailItem label="Area" value={project.building_area} />
+              <DetailItem label="Price" value={project.price?.toString()} />
+              <DetailItem label="Status" value={project.state} />
+              {project.start_date && (
+                <DetailItem label="Start Date" value={new Date(project.start_date).toLocaleDateString()} />
+              )}
+              {project.delivery_date && (
+                <DetailItem label="Delivery Date" value={new Date(project.delivery_date).toLocaleDateString()} />
+              )}
             </ThemedView>
           </ThemedView>
-        )}
-      </ThemedView>
-    </ParallaxScrollView>
+
+          {properties && properties.properties.length > 0 && (
+            <ThemedView style={styles.card}>
+              <ThemedText type="subtitle" style={styles.cardTitle}>Available Properties</ThemedText>
+              <ThemedView style={styles.propertiesGrid}>
+                {properties.properties.map(property => (
+                  <Link 
+                    key={property.id} 
+                    href={{
+                      pathname: "/booking",
+                      params: { 
+                        propertyId: property.id,
+                        projectId: project.id,
+                        propertyName: property.name,
+                        price: property.unit_price
+                      }
+                    }}
+                    asChild
+                  >
+                    <TouchableOpacity activeOpacity={0.7}>
+                      <ThemedView style={styles.propertyCard}>
+                        <ThemedText type="defaultSemiBold" style={styles.propertyName}>{property.name}</ThemedText>
+                        <ThemedText style={styles.propertyDescription} numberOfLines={2}>{property.description}</ThemedText>
+                        <ThemedView style={styles.propertyFooter}>
+                          <ThemedText style={styles.propertyPrice}>${property.unit_price.toLocaleString()}</ThemedText>
+                          <ThemedText style={styles.propertyType}>{property.property_for}</ThemedText>
+                        </ThemedView>
+                      </ThemedView>
+                    </TouchableOpacity>
+                  </Link>
+                ))}
+              </ThemedView>
+            </ThemedView>
+          )}
+        </ThemedView>
+      </ParallaxScrollView>
+    </ThemedView>
   );
 }
 
@@ -169,6 +182,9 @@ function DetailItem({ label, value }: { label: string; value?: string }) {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   centered: {
     flex: 1,
     justifyContent: 'center',

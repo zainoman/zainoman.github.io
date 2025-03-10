@@ -1,6 +1,7 @@
-import { useLocalSearchParams } from 'expo-router';
+import { Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, TextInput, TouchableOpacity, Alert, Image } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
@@ -32,6 +33,7 @@ export default function BookingScreen() {
     propertyName: string;
     price: string;
   }>();
+  const insets = useSafeAreaInsets();
 
   // Add check for undefined params
   if (!params.propertyId || !params.projectId || !params.propertyName || !params.price) {
@@ -67,83 +69,94 @@ export default function BookingScreen() {
   };
 
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image 
-          source={require('@/assets/images/icon.png')}
-          style={styles.headerImage}
-          resizeMode="contain"
-        />
-      }
-    >
-      <ThemedView style={styles.contentContainer}>
-        <ThemedView style={styles.card}>
-          <ThemedText type="title" style={styles.propertyName}>
-            {params.propertyName}
-          </ThemedText>
-          <ThemedText type="defaultSemiBold" style={styles.price}>
-            ${Number(params.price).toLocaleString()}
-          </ThemedText>
-        </ThemedView>
-
-        <ThemedView style={styles.card}>
-          <ThemedText type="subtitle" style={styles.formTitle}>
-            Book Your Property
-          </ThemedText>
-
-          <ThemedView style={styles.form}>
-            <InputField
-              label="Full Name"
-              required
-              value={formData.fullName}
-              onChangeText={(text: string) => setFormData((prev: FormData) => ({ ...prev, fullName: text }))}
-              placeholder="Enter your full name"
-            />
-
-            <InputField
-              label="Email"
-              required
-              value={formData.email}
-              onChangeText={(text: string) => setFormData((prev: FormData) => ({ ...prev, email: text }))}
-              placeholder="Enter your email"
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-
-            <InputField
-              label="Phone Number"
-              required
-              value={formData.phone}
-              onChangeText={(text: string) => setFormData((prev: FormData) => ({ ...prev, phone: text }))}
-              placeholder="Enter your phone number"
-              keyboardType="phone-pad"
-            />
-
-            <InputField
-              label="Additional Notes"
-              value={formData.notes}
-              onChangeText={(text: string) => setFormData((prev: FormData) => ({ ...prev, notes: text }))}
-              placeholder="Any special requests or notes"
-              multiline
-              numberOfLines={4}
-            />
+    <ThemedView style={styles.container}>
+      <Stack.Screen 
+        options={{
+          headerShown: true,
+          title: 'Property Booking',
+          headerBackTitle: 'Back',
+          headerTransparent: false,
+        }}
+      />
+      
+      <ParallaxScrollView
+        headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+        headerImage={
+          <Image 
+            source={require('@/assets/images/icon.png')}
+            style={styles.headerImage}
+            resizeMode="contain"
+          />
+        }
+      >
+        <ThemedView style={[styles.contentContainer, { paddingTop: insets.top > 0 ? 0 : 10 }]}>
+          <ThemedView style={styles.card}>
+            <ThemedText type="title" style={styles.propertyName}>
+              {params.propertyName}
+            </ThemedText>
+            <ThemedText type="defaultSemiBold" style={styles.price}>
+              ${Number(params.price).toLocaleString()}
+            </ThemedText>
           </ThemedView>
 
-          <TouchableOpacity
-            style={styles.submitButton}
-            onPress={handleSubmit}
-            activeOpacity={0.7}
-          >
-            <ThemedView style={styles.submitButtonInner}>
-              <ThemedText style={styles.submitButtonText}>
-                Submit Booking Request
-              </ThemedText>
+          <ThemedView style={styles.card}>
+            <ThemedText type="subtitle" style={styles.formTitle}>
+              Book Your Property
+            </ThemedText>
+
+            <ThemedView style={styles.form}>
+              <InputField
+                label="Full Name"
+                required
+                value={formData.fullName}
+                onChangeText={(text: string) => setFormData((prev: FormData) => ({ ...prev, fullName: text }))}
+                placeholder="Enter your full name"
+              />
+
+              <InputField
+                label="Email"
+                required
+                value={formData.email}
+                onChangeText={(text: string) => setFormData((prev: FormData) => ({ ...prev, email: text }))}
+                placeholder="Enter your email"
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+
+              <InputField
+                label="Phone Number"
+                required
+                value={formData.phone}
+                onChangeText={(text: string) => setFormData((prev: FormData) => ({ ...prev, phone: text }))}
+                placeholder="Enter your phone number"
+                keyboardType="phone-pad"
+              />
+
+              <InputField
+                label="Additional Notes"
+                value={formData.notes}
+                onChangeText={(text: string) => setFormData((prev: FormData) => ({ ...prev, notes: text }))}
+                placeholder="Any special requests or notes"
+                multiline
+                numberOfLines={4}
+              />
             </ThemedView>
-          </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.submitButton}
+              onPress={handleSubmit}
+              activeOpacity={0.7}
+            >
+              <ThemedView style={styles.submitButtonInner}>
+                <ThemedText style={styles.submitButtonText}>
+                  Submit Booking Request
+                </ThemedText>
+              </ThemedView>
+            </TouchableOpacity>
+          </ThemedView>
         </ThemedView>
-      </ThemedView>
-    </ParallaxScrollView>
+      </ParallaxScrollView>
+    </ThemedView>
   );
 }
 
@@ -163,6 +176,9 @@ function InputField({ label, required, ...props }: any) {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   headerImage: {
     width: '100%',
     height: '100%',

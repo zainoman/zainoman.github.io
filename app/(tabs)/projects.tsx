@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ProjectCard } from '@/components/ProjectCard';
 import { ThemedText } from '@/components/ThemedText';
@@ -12,6 +13,7 @@ export default function ProjectsScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>();
   const [refreshing, setRefreshing] = useState(false);
+  const insets = useSafeAreaInsets();
 
   async function loadProjects() {
     try {
@@ -69,7 +71,10 @@ export default function ProjectsScreen() {
         data={projects}
         renderItem={({ item }) => <ProjectCard project={item} />}
         keyExtractor={item => item.id.toString()}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={[
+          styles.list, 
+          { paddingTop: insets.top > 0 ? insets.top + 10 : 30 }
+        ]}
         refreshing={refreshing}
         onRefresh={onRefresh}
         ListEmptyComponent={
