@@ -48,13 +48,14 @@ export default function ProjectDetailsScreen() {
   }
 
   return (
+    console.log('ProjectDetailsScreen:', project),
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
       headerImage={
         project.image ? (
           <ThemedView style={styles.imageContainer}>
             <Image 
-              source={{ uri: `data:image/jpeg;base64,${project.image}` }}
+              source={{ uri: `https://odoosahab-al-zain-realestate-stage-18771559.dev.odoo.com${(project.image)}` }}
               style={styles.image}
               resizeMode="cover"
             />

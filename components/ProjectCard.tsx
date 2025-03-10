@@ -5,6 +5,8 @@ import { ThemedText } from './ThemedText';
 import { ThemedView } from './ThemedView';
 import type { Project } from '@/types/api';
 
+const BASE_URL = 'https://odoosahab-al-zain-realestate-stage-18771559.dev.odoo.com';
+
 interface Props {
   project: Project;
 }
@@ -16,7 +18,7 @@ export function ProjectCard({ project }: Props) {
         <ThemedView style={styles.card}>
           {project.image && (
             <Image
-              source={{ uri: `data:image/jpeg;base64,${project.image}` }}
+              source={{ uri: `${BASE_URL}${project.image}` }}
               style={styles.image}
               resizeMode="cover"
             />
