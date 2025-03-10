@@ -1,7 +1,8 @@
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, Alert, Image } from 'react-native';
+import { StyleSheet, TextInput, TouchableOpacity, Image, ActivityIndicator, useColorScheme } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
 
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
@@ -26,6 +27,10 @@ interface InputFieldProps {
     numberOfLines?: number;
 }
 
+// API endpoint for booking
+const API_BOOKING_URL = 'https://odoosahab-al-zain-realestate-stage-18771559.dev.odoo.com/api/book_property';
+// No API key needed as the endpoint is public
+
 export default function BookingScreen() {
   const params = useLocalSearchParams<{
     propertyId: string;
@@ -34,6 +39,7 @@ export default function BookingScreen() {
     price: string;
   }>();
   const insets = useSafeAreaInsets();
+  const [isLoading, setIsLoading] = useState(false);
 
   // Add check for undefined params
   if (!params.propertyId || !params.projectId || !params.propertyName || !params.price) {
@@ -52,19 +58,109 @@ export default function BookingScreen() {
   });
 
   const handleSubmit = async () => {
+    // Validate form
     if (!formData.fullName || !formData.email || !formData.phone) {
-      Alert.alert('Error', 'Please fill in all required fields');
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Please fill in all required fields',
+        visibilityTime: 3000,
+        topOffset: 50
+      });
       return;
     }
 
+    setIsLoading(true);
+
     try {
-      Alert.alert(
-        'Booking Request Sent',
-        'We will contact you soon to complete your booking.',
-        [{ text: 'OK' }]
-      );
+      // Prepare data in JSON-RPC 2.0 format
+      const jsonRpcRequest = {
+        jsonrpc: "2.0",
+        method: "call",
+        params: {
+          name: formData.fullName,
+          email: formData.email,
+          phone: formData.phone,
+          property_id: parseInt(params.propertyId),
+          notes: formData.notes
+        },
+        id: new Date().getTime()
+      };
+      
+      console.log('Sending booking request:', JSON.stringify(jsonRpcRequest));
+
+      // Make API call with proper headers but no auth
+      const response = await fetch(API_BOOKING_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify(jsonRpcRequest)
+      });
+      
+      console.log('Response status:', response.status);
+      
+      // Get response text first for debugging
+      const responseText = await response.text();
+      console.log('Response body:', responseText);
+      
+      // Try to parse as JSON if possible
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (e) {
+        console.error('Failed to parse response as JSON:', e);
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: 'Received invalid response from server',
+          visibilityTime: 4000,
+          topOffset: 50
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // Check for success in the result object (JSON-RPC format)
+      if (data.result && data.result.success) {
+        Toast.show({
+          type: 'success',
+          text1: 'Booking Request Sent',
+          text2: 'We will contact you soon to complete your booking.',
+          visibilityTime: 3000,
+          topOffset: 50
+        });
+        
+        // Reset form after successful submission
+        setFormData({
+          fullName: '',
+          email: '',
+          phone: '',
+          notes: '',
+        });
+      } else {
+        // Get error from the JSON-RPC result
+        const errorMessage = data.result?.error || data.error?.message || 'Failed to submit booking request';
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: errorMessage,
+          visibilityTime: 4000,
+          topOffset: 50
+        });
+      }
     } catch (error) {
-      Alert.alert('Error', 'Failed to submit booking request');
+      console.error('Booking submission error:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to submit booking request. Please try again later.',
+        visibilityTime: 4000,
+        topOffset: 50
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -146,29 +242,50 @@ export default function BookingScreen() {
               style={styles.submitButton}
               onPress={handleSubmit}
               activeOpacity={0.7}
+              disabled={isLoading}
             >
-              <ThemedView style={styles.submitButtonInner}>
-                <ThemedText style={styles.submitButtonText}>
-                  Submit Booking Request
-                </ThemedText>
+              <ThemedView style={[styles.submitButtonInner, isLoading && styles.submitButtonDisabled]}>
+                {isLoading ? (
+                  <ActivityIndicator color="#fff" size="small" />
+                ) : (
+                  <ThemedText style={styles.submitButtonText}>
+                    Submit Booking Request
+                  </ThemedText>
+                )}
               </ThemedView>
             </TouchableOpacity>
           </ThemedView>
         </ThemedView>
       </ParallaxScrollView>
+      
+      {/* Add Toast Message component at the root level */}
+      <Toast />
     </ThemedView>
   );
 }
 
 function InputField({ label, required, ...props }: any) {
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === 'dark';
+  const [isFocused, setIsFocused] = useState(false);
+  
   return (
     <ThemedView style={styles.inputGroup}>
       <ThemedText style={styles.label}>
         {label} {required && <ThemedText style={styles.required}>*</ThemedText>}
       </ThemedText>
       <TextInput
-        style={[styles.input, props.multiline && styles.textArea]}
-        placeholderTextColor="rgba(128, 128, 128, 0.7)"
+        style={[
+          styles.input, 
+          props.multiline && styles.textArea,
+          { 
+            color: isDarkMode ? '#FFFFFF' : '#000000',
+            borderColor: isFocused ? '#0a7ea4' : 'rgba(161, 206, 220, 0.4)'
+          }
+        ]}
+        placeholderTextColor={isDarkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.5)'}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
         {...props}
       />
     </ThemedView>
@@ -233,7 +350,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
-    color: '#2c3e50', // Adding text color for better contrast
+    fontWeight: '500',
   },
   textArea: {
     minHeight: 120,
@@ -258,5 +375,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  submitButtonDisabled: {
+    backgroundColor: 'rgba(10, 126, 164, 0.7)',
   },
 });
