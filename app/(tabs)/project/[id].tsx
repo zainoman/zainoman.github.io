@@ -1,6 +1,7 @@
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Image } from 'react-native';
+import { ActivityIndicator, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { Link } from 'expo-router';
 
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
@@ -124,14 +125,30 @@ export default function ProjectDetailsScreen() {
             <ThemedText type="subtitle" style={styles.cardTitle}>Available Properties</ThemedText>
             <ThemedView style={styles.propertiesGrid}>
               {properties.properties.map(property => (
-                <ThemedView key={property.id} style={styles.propertyCard}>
-                  <ThemedText type="defaultSemiBold" style={styles.propertyName}>{property.name}</ThemedText>
-                  <ThemedText style={styles.propertyDescription} numberOfLines={2}>{property.description}</ThemedText>
-                  <ThemedView style={styles.propertyFooter}>
-                    <ThemedText style={styles.propertyPrice}>${property.unit_price.toLocaleString()}</ThemedText>
-                    <ThemedText style={styles.propertyType}>{property.property_for}</ThemedText>
-                  </ThemedView>
-                </ThemedView>
+                <Link 
+                  key={property.id} 
+                  href={{
+                    pathname: "/booking",
+                    params: { 
+                      propertyId: property.id,
+                      projectId: project.id,
+                      propertyName: property.name,
+                      price: property.unit_price
+                    }
+                  }}
+                  asChild
+                >
+                  <TouchableOpacity activeOpacity={0.7}>
+                    <ThemedView style={styles.propertyCard}>
+                      <ThemedText type="defaultSemiBold" style={styles.propertyName}>{property.name}</ThemedText>
+                      <ThemedText style={styles.propertyDescription} numberOfLines={2}>{property.description}</ThemedText>
+                      <ThemedView style={styles.propertyFooter}>
+                        <ThemedText style={styles.propertyPrice}>${property.unit_price.toLocaleString()}</ThemedText>
+                        <ThemedText style={styles.propertyType}>{property.property_for}</ThemedText>
+                      </ThemedView>
+                    </ThemedView>
+                  </TouchableOpacity>
+                </Link>
               ))}
             </ThemedView>
           </ThemedView>
