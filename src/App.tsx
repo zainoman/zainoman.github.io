@@ -103,15 +103,20 @@ function App() {
                     onClick={() => setSelectedProject(project.id)}
                   >
                     {project.image && (
-                      <img 
-                        src={getImageUrl(project.image)}
-                        alt={project.project_name}
-                        className="project-image"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.style.display = 'none';
-                        }}
-                      />
+                      <div className="image-container">
+                        <img 
+                          src={getImageUrl(project.image)}
+                          alt={project.project_name}
+                          className="project-image"
+                          loading="lazy"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = '/vite.svg'; // Set fallback image
+                            target.className = 'project-image error';
+                            console.error('Failed to load image:', project.project_name);
+                          }}
+                        />
+                      </div>
                     )}
                     <h3>{project.project_name}</h3>
                     <p>{project.description}</p>

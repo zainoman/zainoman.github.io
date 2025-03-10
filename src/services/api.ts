@@ -42,11 +42,9 @@ api.interceptors.response.use(
 // Add request interceptor to handle errors before they occur
 api.interceptors.request.use(
   config => {
-    // Ensure headers are properly set
-    config.headers = {
-      ...config.headers,
-      'X-Requested-With': 'XMLHttpRequest',
-    };
+    if (config.headers) {
+      config.headers['X-Requested-With'] = 'XMLHttpRequest';
+    }
     return config;
   },
   error => {
@@ -66,12 +64,15 @@ export const projectsApi = {
           'Expires': '0',
         },
       });
-      return response.data;
+      
+      // Validate image data in response
+      return response.data.map((project: Project) => ({
+        ...project,
+        image: project.image || null // Ensure null for missing images
+      }));
     } catch (error) {
-      if (error instanceof Error) {
-        throw error;
-      }
-      throw new Error('Failed to fetch projects');
+      console.error('API Error:', error);
+      throw error;
     }
   },
 

@@ -2,13 +2,18 @@ export interface Project {
   id: number;
   project_name: string;
   description: string;
-  image: string | null;
+  image: string | null; // Base64 encoded image string
+  location_id: number;
+  status: string;
 }
 
-export interface ProjectDetails extends Project {
-  address: string;
-  start_date: string | null;
-  delivery_date: string | null;
+export interface ProjectDetails {
+  id: number;
+  project_name: string;
+  description: string;
+  image: string | null;
+  location: Location;
+  properties: Property[];
 }
 
 export interface Property {
@@ -18,19 +23,17 @@ export interface Property {
   unit_price: number;
   property_for: string;
   project_id: number;
-  project_name: string;
+  images: string[]; // Array of Base64 encoded image strings
 }
 
 export interface Location {
   id: number;
-  project_name: string;
+  name: string;
   latitude: number;
   longitude: number;
-  address: string;
 }
 
 export interface ProjectPropertiesResponse {
-  project_id: number;
-  project_name: string;
   properties: Property[];
+  total: number;
 }
