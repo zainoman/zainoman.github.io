@@ -197,7 +197,6 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   contentContainer: {
-    padding: 20,
     gap: 28,
   },
   title: {

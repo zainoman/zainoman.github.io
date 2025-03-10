@@ -172,7 +172,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   contentContainer: {
-    padding: 20,
     gap: 28,
   },
   card: {
