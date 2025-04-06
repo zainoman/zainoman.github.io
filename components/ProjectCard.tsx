@@ -1,4 +1,4 @@
-import { Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { Image, StyleSheet, TouchableOpacity, Platform, Dimensions } from 'react-native';
 import { Link } from 'expo-router';
 
 import { ThemedText } from './ThemedText';
@@ -14,7 +14,7 @@ interface Props {
 export function ProjectCard({ project }: Props) {
   return (
     <Link href={{ pathname: '/(tabs)/project/[id]', params: { id: project.id } }} asChild>
-      <TouchableOpacity activeOpacity={0.7}>
+      <TouchableOpacity activeOpacity={0.7} style={styles.touchable}>
         <ThemedView style={styles.card}>
           {project.image && (
             <Image
@@ -25,7 +25,6 @@ export function ProjectCard({ project }: Props) {
           )}
           <ThemedView style={styles.content}>
             <ThemedText type="subtitle">{project.project_name}</ThemedText>
-            <ThemedText numberOfLines={2}>{project.description}</ThemedText>
           </ThemedView>
         </ThemedView>
       </TouchableOpacity>
@@ -34,10 +33,14 @@ export function ProjectCard({ project }: Props) {
 }
 
 const styles = StyleSheet.create({
+  touchable: {
+    outline: 'none', // Removes the focus outline on web
+  },
   card: {
-    borderRadius: 8,
+    borderRadius: 12,
     overflow: 'hidden',
     marginBottom: 16,
+    backgroundColor: '#0c61aa', 
   },
   image: {
     width: '100%',
@@ -46,5 +49,10 @@ const styles = StyleSheet.create({
   content: {
     padding: 16,
     gap: 8,
+    backgroundColor: '#0c61aa'
+  },
+  // For responsive text in the project card if needed
+  responsiveText: {
+    fontSize: Platform.OS === 'web' && Dimensions.get('window').width < 768 ? 14 : 16,
   }
 });

@@ -1,0 +1,14 @@
+/* Remove focus outlines for all elements */
+*:focus {
+  outline: none !important;
+}
+
+/* Only show focus for keyboard navigation */
+*:focus-visible {
+  outline: 2px solid #0c61aa !important;
+}
+
+/* Prevent blue highlight on touch in mobile browsers */
+* {
+  -webkit-tap-highlight-color: transparent;
+}

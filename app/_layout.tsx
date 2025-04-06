@@ -6,6 +6,13 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { Platform } from 'react-native';
+
+// Import global CSS for web only
+if (Platform.OS === 'web') {
+  // @ts-ignore - Import CSS file in web environment
+  import('./global.css');
+}
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 

@@ -65,12 +65,12 @@ export default function ProjectDetailsScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <Stack.Screen 
+<Stack.Screen 
         options={{
           headerShown: true,
-          headerTitle: project?.project_name || 'Project Details',
+          title: project?.project_name || 'Project Details',
           headerBackTitle: 'Back',
-          headerBackVisible: true,
+          headerTransparent: false,
         }}
       />
       
